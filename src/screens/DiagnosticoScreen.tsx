@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import apiClient, { API_ROOT } from "../services/apiClient";
+import { getAccessToken, setAccessToken } from "../services/authTokenManager";
 
 function describeError(error: unknown): string {
   const e = error as {
@@ -37,7 +38,11 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function DiagnosticoScreen() {
+export default function DiagnosticoScreen({
+  onOpenVerification,
+}: {
+  onOpenVerification?: () => void;
+}) {
   const [busy, setBusy] = useState<string | null>(null);
   const [health, setHealth] = useState("sin probar");
   const [ready, setReady] = useState("sin probar");
@@ -48,6 +53,8 @@ export default function DiagnosticoScreen() {
   const [otp, setOtp] = useState("");
   const [registerOut, setRegisterOut] = useState("");
   const [verifyOut, setVerifyOut] = useState("");
+  const [loginOut, setLoginOut] = useState("");
+  const [loggedIn, setLoggedIn] = useState(getAccessToken() !== null);
 
   async function ping() {
     setBusy("ping");
@@ -102,6 +109,23 @@ export default function DiagnosticoScreen() {
     setBusy(null);
   }
 
+  async function login() {
+    setBusy("login");
+    setLoginOut("…");
+    try {
+      const res = await apiClient.post("/auth/login", {
+        email: email.trim(),
+        password,
+      });
+      setAccessToken(res.data.accessToken);
+      setLoggedIn(true);
+      setLoginOut(`OK · ${res.data.user?.email ?? "sesión iniciada"}`);
+    } catch (error) {
+      setLoginOut(describeError(error));
+    }
+    setBusy(null);
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -133,6 +157,49 @@ export default function DiagnosticoScreen() {
               <Text style={styles.buttonText}>Probar conexión</Text>
             )}
           </Pressable>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Sesión</Text>
+          <Text style={styles.hint}>
+            Inicia sesión con una cuenta ya verificada para grabar el video.
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="email@ejemplo.com"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Pressable
+            style={[styles.button, busy === "login" && styles.buttonDisabled]}
+            onPress={login}
+            disabled={busy !== null}
+          >
+            {busy === "login" ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Iniciar sesión</Text>
+            )}
+          </Pressable>
+          {loginOut ? <Text style={styles.output}>{loginOut}</Text> : null}
+
+          {loggedIn && onOpenVerification ? (
+            <Pressable
+              style={[styles.button, styles.buttonSecondary]}
+              onPress={onOpenVerification}
+            >
+              <Text style={styles.buttonText}>Grabar video de verificación</Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={styles.card}>
@@ -267,6 +334,10 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  buttonSecondary: {
+    backgroundColor: "#0f766e",
+    marginTop: 10,
   },
   buttonText: {
     color: "#fff",
