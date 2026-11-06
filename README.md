@@ -2,7 +2,9 @@
 
 App móvil de DateApp — Expo SDK 58 · React Native 0.88 · TypeScript.
 
-> **Documentación del proyecto:** [`../docs/`](../docs/README.md)
+> **Documentación del proyecto:** vive en el repo del backend →
+> [mi-app-backend/docs](https://github.com/mikemg89/mi-app-backend/tree/main/docs)
+> Empieza por [`00-mvp-sin-presupuesto.md`](https://github.com/mikemg89/mi-app-backend/blob/main/docs/00-mvp-sin-presupuesto.md).
 > Este README solo cubre cómo correr la app y en qué estado está.
 
 ---
@@ -80,7 +82,7 @@ Cualquier SDK de identidad (FaceTec, proveedores KYC, etc.) es **código nativo*
 - **No funciona en Expo Go.** Requiere *development build*:
   `npx expo run:android` o `eas build --profile development`.
 - Requiere `app.json` con `scheme`, `ios.bundleIdentifier` y `android.package`.
-- El plan y los criterios están en [`../docs/03-spike-kyc.md`](../docs/03-spike-kyc.md).
+- El plan y los criterios están en [`docs/03-spike-kyc.md`](https://github.com/mikemg89/mi-app-backend/blob/main/docs/03-spike-kyc.md).
 
 No integres el SDK antes de cerrar la Fase 0 del roadmap.
 
