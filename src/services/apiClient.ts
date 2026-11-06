@@ -7,9 +7,16 @@ import {
 } from "./authTokenManager";
 import { getRefreshToken, deleteRefreshToken } from "./secureStorage";
 
+// La URL raíz incluye host y puerto, pero NO el prefijo /api:
+// el backend monta todas las rutas bajo /api, así que lo añade el cliente.
+const RAW_API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+
+/** Raíz de la API sin barra final. Se muestra en la pantalla de diagnóstico. */
+export const API_ROOT = RAW_API_URL.replace(/\/+$/, "");
+
 const apiClient = axios.create({
-  // Usamos la variable de entorno que configuramos en el .env
-  baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000",
+  baseURL: `${API_ROOT}/api`,
+  timeout: 15_000,
   headers: {
     "Content-Type": "application/json",
   },
